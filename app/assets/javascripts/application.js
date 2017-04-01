@@ -24,23 +24,25 @@ $(function(){
     dataType: 'json',
     success: function( data ) {
       projectData = data;
-      addMapData();
+      console.log(data);
+      createMap();
     },
     error: function(jqXHR, textStatus, errorThrown) {
       console.log( "ERROR:  " + errorThrown );
     }
   });
 
-  var kenyaMap = L.map('main-map').setView([0.0236, 37.9062], 6);
+  function createMap() {
+    var kenyaMap = L.map('main-map').setView([0.0236, 37.9062], 6);
 
-  L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-    attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
-    maxZoom: 18,
-    id: 'streets-v9',
-    accessToken: 'pk.eyJ1IjoibWFya3JsaSIsImEiOiJjajBzeGptcm0wNGl2Mndqd3dzbWJ5MXdoIn0.6X8tRTfMn_tIZBBORINNfw'
-  }).addTo(kenyaMap);
+    L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+      attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
+      maxZoom: 18,
+      id: 'streets-v9',
+      accessToken: 'pk.eyJ1IjoibWFya3JsaSIsImEiOiJjajBzeGptcm0wNGl2Mndqd3dzbWJ5MXdoIn0.6X8tRTfMn_tIZBBORINNfw'
+    }).addTo(kenyaMap);
 
-  function addMapData() {
+    // add map markers and popups
     for (project of projectData["features"]) {
       if (!project["geometry"]) {
         return;
@@ -48,7 +50,28 @@ $(function(){
 
       // coordinates in data are [long, lat]: need to reverse them
       var coordinates = project["geometry"]["coordinates"].reverse();
-      L.marker(coordinates).addTo(kenyaMap);
+      var marker = L.marker(coordinates).addTo(kenyaMap);
+
+      addPopUpToMapMarker(marker);
     }
+  }
+
+  function addPopUpToMapMarker(marker) {
+    var projectTitle = project["properties"]["project_title"];
+    if (!projectTitle) {
+      projectTitle = "No Project Title Available";
+    }
+
+    var projectDescription = project["properties"]["project_description"];
+    if (!projectDescription) {
+      projectDescription = "No Project Description Available";
+    }
+
+    var projectObjective = project["properties"]["project_objective"];
+    if (!projectObjective) {
+      projectObjective = "No Project Objective Available";
+    }
+
+    marker.bindPopup(`<p><b>${projectTitle}</b></p><p>${projectDescription}</p><p>${projectObjective}</p>`);
   }
 });
