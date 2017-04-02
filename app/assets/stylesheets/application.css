@@ -15,5 +15,12 @@
  */
 
  #main-map {
-   height: 350px;
+   height: 450px;
+   width: 600px;
+   float: left;
+   margin-right: 20px;
+ }
+
+ #map-options-container {
+   float: left;
  }

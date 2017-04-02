@@ -17,20 +17,40 @@
 
 $(function(){
   var projectData;
+  var kenyaCountyData;
   var kenyaMap;
   var markerClusters;
   var individualMapMarkers;
+  var countyProjectsCount = {};
 
-  $.ajax({
-    url: '/projects-data.json',
-    dataType: 'json',
-    success: function( data ) {
-      projectData = data;
-      createMap();
-    },
-    error: function(jqXHR, textStatus, errorThrown) {
-      console.log( "ERROR:  " + errorThrown );
-    }
+  function loadProjectData() {
+    return $.ajax({
+      url: '/projects-data.json',
+      dataType: 'json',
+      success: function( data ) {
+        projectData = data;
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.log( "ERROR:  " + errorThrown );
+      }
+    });
+  }
+
+  function loadKenyaCountyData() {
+    return $.ajax({
+      url: '/kenya-counties.geojson',
+      dataType: 'json',
+      success: function( data ) {
+        kenyaCountyData = data;
+      },
+      error: function(jqXHR, textStatus, errorThrown) {
+        console.log( "ERROR:  " + errorThrown );
+      }
+    });
+  }
+
+  $.when(loadKenyaCountyData(), loadProjectData()).done(function(){
+    createMap();
   });
 
   $('#clusterCheckBox').change(function() {
@@ -42,7 +62,6 @@ $(function(){
       kenyaMap.addLayer(individualMapMarkers);
     }
   });
-
 
   function createMap() {
     kenyaMap = L.map('main-map').setView([0.0236, 37.9062], 6);
@@ -59,8 +78,13 @@ $(function(){
 
     for (project of projectData["features"]) {
       if (!project["geometry"]) {
+        // if project doesn't have coordinates, continue to next iteration
         continue;
       }
+
+      // add tally for countyProjectsCount
+      var projectCounty = project["properties"]["county"]
+      countyProjectsCount[projectCounty] = (countyProjectsCount[projectCounty] + 1) || 1 ;
 
       // coordinates in data are [long, lat]: need to reverse them
       var coordinates = project["geometry"]["coordinates"].reverse();
@@ -74,6 +98,8 @@ $(function(){
 
     // default to individual map markers, instead of clusters
     kenyaMap.addLayer(individualMapMarkers);
+
+    L.geoJSON(kenyaCountyData, {style: styleCounty}).addTo(kenyaMap);
   }
 
   function addPopUpToMapMarker(marker) {
@@ -93,5 +119,45 @@ $(function(){
     }
 
     marker.bindPopup(`<p><b>${projectTitle}</b></p><p>${projectDescription}</p><p>${projectObjective}</p>`);
+  }
+
+  function getColor(county) {
+    var projectsCount = countyProjectsCount[county];
+
+    if (projectsCount > 200) {
+      return '#800026';
+    }
+    else if (projectsCount > 100) {
+      return '#BD0026';
+    }
+    else if (projectsCount > 50) {
+      return '#E31A1C';
+    }
+    else if (projectsCount > 25) {
+      return '#FC4E2A';
+    }
+    else if (projectsCount > 15) {
+      return '#FD8D3C';
+    }
+    else if (projectsCount > 10) {
+      return '#FEB24C';
+    }
+    else if (projectsCount > 5) {
+      return '#FED976';
+    }
+    else {
+      return '#FFEDA0';
+    }
+  }
+
+  function styleCounty(feature) {
+    return {
+        fillColor: getColor(feature.properties.COUNTY_NAM),
+        weight: 2,
+        opacity: 1,
+        color: 'white',
+        dashArray: '3',
+        fillOpacity: 0.7
+    };
   }
 });
