@@ -26,7 +26,7 @@ $(function(){
     dataType: 'json',
     success: function( data ) {
       projectData = data;
-      createMap(false);
+      createMap();
     },
     error: function(jqXHR, textStatus, errorThrown) {
       console.log( "ERROR:  " + errorThrown );
@@ -44,7 +44,7 @@ $(function(){
   });
 
 
-  function createMap(useClusters) {
+  function createMap() {
     kenyaMap = L.map('main-map').setView([0.0236, 37.9062], 6);
 
     L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
