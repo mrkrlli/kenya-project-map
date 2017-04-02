@@ -14,46 +14,45 @@ This app runs on Ruby on Rails 5.0.2, with Ruby 2.3.1
 #### Setting up Ruby
 If you don't already have Ruby 2.3.1 installed or a Ruby version manager installed:
 
-1. Install [rbenv](https://github.com/rbenv/rbenv) (a Ruby version manager): https://github.com/rbenv/rbenv#installation
-
+Install [rbenv](https://github.com/rbenv/rbenv) (a Ruby version manager): https://github.com/rbenv/rbenv#installation
   - Install using the "Basic GitHub Checkout" instructions.
-1. Install [ruby-build](https://github.com/rbenv/ruby-build#readme) (an rbenv plugin that simplifies the process of installing new Ruby versions): https://github.com/rbenv/ruby-build#installing-as-an-rbenv-plugin-recommended
 
+Install [ruby-build](https://github.com/rbenv/ruby-build#readme) (an rbenv plugin that simplifies the process of installing new Ruby versions): https://github.com/rbenv/ruby-build#installing-as-an-rbenv-plugin-recommended
   - Install using the "Installing as an rbenv plugin" instructions.
-1. Install Ruby 2.3.1:
 
-  ```
-  $ rbenv install 2.3.1
-  ```
+Install Ruby 2.3.1:
+```
+$ rbenv install 2.3.1
+```
 
 #### Run project locally
 
-1. Clone the repo:
+Clone the repo:
+```
+$ git clone https://github.com/mrkrlli/kenya-project-map.git
+```
 
-  ```
-  $ git clone https://github.com/mrkrlli/kenya-project-map.git
-  ```
+`cd` into the project directory.
 
-1. `cd` into the project directory.
+ If you don't have [bundler](http://bundler.io/) (Ruby gem that manages Ruby app dependencies) installed:
 
-1. If you don't have [bundler](http://bundler.io/) (Ruby gem that manages Ruby app dependencies) installed:
+```
+$ gem install bundler
+```
 
-  ```
-  $ gem install bundler
-  ```
-1. Install the project's required gems (dependencies):
+Install the project's required gems (dependencies):
 
-  ```
-  $ bundle install
-  ```
+```
+$ bundle install
+```
 
-1. Run the rails server:
+Run the rails server:
 
-  ```
-  $ bundle exec rails s
-  ```
+```
+$ bundle exec rails s
+```
 
-1. Once the rails server is running, the project should now be viewable in a browser at `localhost:3000`
+Once the rails server is running, the project should now be viewable in a browser at `localhost:3000`
 
 ## Notes
 
