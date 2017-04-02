@@ -16,24 +16,36 @@
 //= require_tree .
 
 $(function(){
-  // load data from json file
   var projectData;
+  var kenyaMap;
+  var markerClusters;
+  var individualMapMarkers;
 
   $.ajax({
     url: '/projects-data.json',
     dataType: 'json',
     success: function( data ) {
       projectData = data;
-      console.log(data);
-      createMap();
+      createMap(false);
     },
     error: function(jqXHR, textStatus, errorThrown) {
       console.log( "ERROR:  " + errorThrown );
     }
   });
 
-  function createMap() {
-    var kenyaMap = L.map('main-map').setView([0.0236, 37.9062], 6);
+  $('#clusterCheckBox').change(function() {
+    if ($(this).is(':checked')) {
+      kenyaMap.removeLayer(individualMapMarkers);
+      kenyaMap.addLayer(markerClusters);
+    } else {
+      kenyaMap.removeLayer(markerClusters);
+      kenyaMap.addLayer(individualMapMarkers);
+    }
+  });
+
+
+  function createMap(useClusters) {
+    kenyaMap = L.map('main-map').setView([0.0236, 37.9062], 6);
 
     L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
       attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://mapbox.com">Mapbox</a>',
@@ -42,18 +54,26 @@ $(function(){
       accessToken: 'pk.eyJ1IjoibWFya3JsaSIsImEiOiJjajBzeGptcm0wNGl2Mndqd3dzbWJ5MXdoIn0.6X8tRTfMn_tIZBBORINNfw'
     }).addTo(kenyaMap);
 
-    // add map markers and popups
+    markerClusters= L.markerClusterGroup();
+    individualMapMarkers = new L.FeatureGroup();
+
     for (project of projectData["features"]) {
       if (!project["geometry"]) {
-        return;
+        continue;
       }
 
       // coordinates in data are [long, lat]: need to reverse them
       var coordinates = project["geometry"]["coordinates"].reverse();
-      var marker = L.marker(coordinates).addTo(kenyaMap);
+      var marker = L.marker(coordinates);
 
       addPopUpToMapMarker(marker);
+
+      markerClusters.addLayer(marker);
+      individualMapMarkers.addLayer(marker);
     }
+
+    // default to individual map markers, instead of clusters
+    kenyaMap.addLayer(individualMapMarkers);
   }
 
   function addPopUpToMapMarker(marker) {
